@@ -5,5 +5,7 @@ from typing import List
 class PredictionRequest(BaseModel):
     landmarks: List[float] = Field(..., min_items=63, max_items=63)
     
+
 class PredictionResponse(BaseModel):
     gesture: str
+    confidence: float

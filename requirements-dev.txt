@@ -20,6 +20,7 @@ packaging==25.0
 pandas==2.2.3
 pipreqs==0.4.13
 pluggy==1.6.0
+prometheus-client==0.22.0
 pydantic @ file:///croot/pydantic_1734736067156/work
 pydantic_core @ file:///croot/pydantic-core_1734726052986/work
 pytest==8.3.5
