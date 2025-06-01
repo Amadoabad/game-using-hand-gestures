@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.schema import PredictionRequest, PredictionResponse
 from app.model import GestureClassifier
+import numpy as np
 
 app = FastAPI()
 classifier = GestureClassifier()
@@ -11,17 +12,10 @@ def root():
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict_gesture(request: PredictionRequest):
-    """
-    Predicts the hand gesture from the landmarks of the hand
-    Arguments:
-        request -- request containing the landmarks of the hand
-    Returns:
-        predicted gesture
-    """
-    landmarks = request.landmarks
-    hand_landmarks = [landmark.model_dump() for landmark in landmarks]
     
-    gesture = classifier.predict(hand_landmarks)
+    input_array = np.array(request.landmarks).reshape(1, -1)
+
+    gesture = classifier.predict(input_array)
     
     return PredictionResponse(gesture=gesture)
 

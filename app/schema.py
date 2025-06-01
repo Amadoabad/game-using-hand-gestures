@@ -1,14 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
-class LandMark(BaseModel):
-    x: float
-    y: float
-    z: float
-    
+# A list of exactly 63 floats
 class PredictionRequest(BaseModel):
-    landmarks: List[LandMark]
-
-
+    landmarks: List[float] = Field(..., min_items=63, max_items=63)
+    
 class PredictionResponse(BaseModel):
     gesture: str
