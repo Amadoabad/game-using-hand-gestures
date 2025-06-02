@@ -3,7 +3,6 @@ from prometheus_client import Histogram, Gauge
 from app.preprocessing import get_tst_points, normalize_hand
 import numpy as np
 
-
 confidence_histogram = Histogram(
     "model_prediction_confidence",
     "Confidence of model predictions",
@@ -20,7 +19,7 @@ class GestureClassifier:
     """A class to classify hand gestures using a pre-trained model"""
 
     def __init__(self):
-        self.model = joblib.load("model/rforest.pkl")
+        self.model = joblib.load("model/hand_gesture_model.pkl")
         self.encoder = joblib.load("model/encoder.pkl")
         self.training_mean = np.load("model/training_mean.npy")
         
@@ -58,9 +57,9 @@ class GestureClassifier:
             pred = 'up'
         elif pred == 'dislike':
             pred = 'down'
-        elif pred == 'call':
-            pred = 'left'
         elif pred == 'rock':
+            pred = 'left'
+        elif pred == 'ok':
             pred = 'right'
         
         return pred, confidence
