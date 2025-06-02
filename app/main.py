@@ -1,12 +1,12 @@
 import time
 import numpy as np
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
-
+from app.metrics import REQUEST_TIME, PREDICTION_COUNTER, LOW_CONFIDENCE_COUNTER
 from app.schema import PredictionRequest, PredictionResponse
 from app.model import GestureClassifier
 from app.metrics import metrics_router
-from app.metrics import REQUEST_TIME, PREDICTION_COUNTER, LOW_CONFIDENCE_COUNTER
 
 
 
@@ -22,6 +22,13 @@ class LatencyMiddleware(BaseHTTPMiddleware):
         return response
     
 app.add_middleware(LatencyMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 classifier = GestureClassifier()
 
 
@@ -33,8 +40,9 @@ def root():
 def predict_gesture(request: PredictionRequest):
     start_time = time.time()
     
-    input_array = np.array(request.landmarks).reshape(1, -1)
-    gesture, confidence = classifier.predict(input_array)
+    print(request.landmarks)
+    
+    gesture, confidence = classifier.predict(request.landmarks)
 
     PREDICTION_COUNTER.inc()
     if confidence < 0.5:

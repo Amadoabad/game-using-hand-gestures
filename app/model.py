@@ -1,5 +1,6 @@
 import joblib
 from prometheus_client import Histogram, Gauge
+from app.preprocessing import get_tst_points, normalize_hand
 import numpy as np
 
 
@@ -22,7 +23,8 @@ class GestureClassifier:
         self.model = joblib.load("model/rforest.pkl")
         self.encoder = joblib.load("model/encoder.pkl")
         self.training_mean = np.load("model/training_mean.npy")
-
+        
+        
     def predict(self, hand_landmarks):
         """Predicts the hand gesture from the landmarks of the hand
 
@@ -30,21 +32,35 @@ class GestureClassifier:
             hand_landmarks -- landmarks of the hand
 
         Returns:
-            predicted gesture
+            predicted gesture and confidence
         """
-        # Monitoring: Model prediction confidence histogram
+        # Preprocessing
+        hand_landmarks = get_tst_points(hand_landmarks, order=True)
+        hand_landmarks = normalize_hand(hand_landmarks)
+        hand_landmarks = hand_landmarks.to_frame().T
+        
+        # Make single prediction and get probabilities
         probabilities = self.model.predict_proba(hand_landmarks)
-        confidence = float(np.max(probabilities))
+        pred_index = np.argmax(probabilities)
+        confidence = float(probabilities[0, pred_index])
         confidence_histogram.observe(confidence)
         
         # Monitoring: Calculate drift and expose to Prometheus
-        current_mean = hand_landmarks.mean(axis=1)
+        current_mean = hand_landmarks.mean(axis=0)
         drift = np.linalg.norm(current_mean - self.training_mean)
         drift_gauge.set(float(drift))
         print(f'Drift from training mean: {drift:.4f}')
         
+        # Get prediction from index and map labels
+        pred = self.encoder.inverse_transform([pred_index])[0]
         
-        pred = self.model.predict(hand_landmarks)
-        pred = self.encoder.inverse_transform(pred)
-
-        return pred[0], confidence
+        if pred == 'one':
+            pred = 'up'
+        elif pred == 'dislike':
+            pred = 'down'
+        elif pred == 'call':
+            pred = 'left'
+        elif pred == 'rock':
+            pred = 'right'
+        
+        return pred, confidence
