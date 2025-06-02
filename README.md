@@ -51,8 +51,7 @@ This repository provides an API for real-time hand gesture classification, desig
    This will start the API, Prometheus, and Grafana (pre-configured with the provided dashboard).
 
 ## Requirements Files
-- `requirements.txt`: Contains only the dependencies needed to run the application and is used in the Docker container.
-- `requirements-dev.txt`: Contains additional packages for development (e.g., `pytest`, `fastapi[test]`, etc.). Both files are maintained in the development branch to support both production and development workflows.
+- `requirements.txt`: Contains only the dependencies needed to run the application and is used in the Docker container.rm 
 
 ## API Endpoints
 - `GET /` — Health check and welcome message.
