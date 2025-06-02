@@ -1,5 +1,5 @@
 import joblib
-from prometheus_client import Histogram
+from prometheus_client import Histogram, Gauge
 import numpy as np
 
 
@@ -7,6 +7,12 @@ confidence_histogram = Histogram(
     "model_prediction_confidence",
     "Confidence of model predictions",
     buckets=[1/10.0 for i in range(11)]
+)
+
+# Add drift monitoring gauge
+drift_gauge = Gauge(
+    "model_data_drift",
+    "Data drift from training distribution (L2 norm of mean difference)"
 )
 
 class GestureClassifier:
@@ -31,9 +37,10 @@ class GestureClassifier:
         confidence = float(np.max(probabilities))
         confidence_histogram.observe(confidence)
         
-        # Monitoring: Calculate drift
+        # Monitoring: Calculate drift and expose to Prometheus
         current_mean = hand_landmarks.mean(axis=1)
         drift = np.linalg.norm(current_mean - self.training_mean)
+        drift_gauge.set(float(drift))
         print(f'Drift from training mean: {drift:.4f}')
         
         
@@ -41,6 +48,3 @@ class GestureClassifier:
         pred = self.encoder.inverse_transform(pred)
 
         return pred[0], confidence
-    
-    
-    

@@ -5,10 +5,13 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.schema import PredictionRequest, PredictionResponse
 from app.model import GestureClassifier
+from app.metrics import metrics_router
+from app.metrics import REQUEST_TIME, PREDICTION_COUNTER, LOW_CONFIDENCE_COUNTER
 
 
 
 app = FastAPI()
+app.include_router(metrics_router)
 
 class LatencyMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -28,8 +31,14 @@ def root():
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict_gesture(request: PredictionRequest):
+    start_time = time.time()
     
     input_array = np.array(request.landmarks).reshape(1, -1)
     gesture, confidence = classifier.predict(input_array)
-    return PredictionResponse(gesture=gesture, confidence=confidence)
 
+    PREDICTION_COUNTER.inc()
+    if confidence < 0.5:
+        LOW_CONFIDENCE_COUNTER.inc()
+    REQUEST_TIME.observe(time.time() - start_time)
+    
+    return PredictionResponse(gesture=gesture, confidence=confidence)
