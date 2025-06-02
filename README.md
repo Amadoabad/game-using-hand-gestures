@@ -27,31 +27,25 @@ This repository provides an API for real-time hand gesture classification, desig
      ```bash
      pip install -r requirements.txt
      ```
-   - For development (includes testing tools):
-     ```bash
-     pip install -r requirements-dev.txt
-     ```
+
 3. **Run the API:**
    ```bash
    uvicorn app.main:app --reload
    ```
-4. **Run tests:**
-   ```bash
-   pytest tests/
-   ```
-5. **Build and run with Docker:**
+4. **Build and run with Docker:**
    ```bash
    docker build -t hand-gesture-api .
    docker run -p 8000:8000 hand-gesture-api
    ```
-6. **Run with Docker Compose (recommended for full stack):**
+5. **Run with Docker Compose (recommended for full stack):**
    ```bash
    docker-compose up --build
    ```
    This will start the API, Prometheus, and Grafana (pre-configured with the provided dashboard).
 
 ## Requirements Files
-- `requirements.txt`: Contains only the dependencies needed to run the application and is used in the Docker container.rm 
+- `requirements.txt`: Contains only the dependencies needed to run the application and is used in the Docker container.
+- `requirements-dev.txt`: Contains additional packages for development (e.g., `pytest`, `fastapi[test]`, etc.). Both files are maintained in the development branch to support both production and development workflows.
 
 ## API Endpoints
 - `GET /` — Health check and welcome message.
@@ -62,6 +56,3 @@ This repository provides an API for real-time hand gesture classification, desig
 - **Prometheus Metrics:** Access at `http://localhost:8000/metrics` when running locally or via Docker Compose.
 - **Grafana Dashboard:** Import the provided `dashboard.json` into Grafana to visualize model confidence, data drift, and latency metrics.
 - **docker-compose.yml:** Orchestrates the API, Prometheus, and Grafana for a complete monitoring stack.
-
-## Testing
-Unit tests are located in `tests/test_api.py` and cover scenarios such as valid/invalid input, missing keys, and type errors to ensure robust API behavior.
