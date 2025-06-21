@@ -5,7 +5,6 @@ This repository provides an API for real-time hand gesture classification, desig
 
 ## Features
 - **Model Serving:** The hand gesture classification model is served via a FastAPI application for low-latency predictions.
-- **Unit Testing:** Initial unit tests are provided (see `tests/test_api.py`) to ensure API reliability and correct error handling.
 - **Containerization:** The application is containerized using Docker for consistent deployment across environments.
 - **Docker Compose:** A `docker-compose.yml` file is provided for orchestrating the API, monitoring stack, and supporting services with a single command.
 - **Monitoring & Observability:**
